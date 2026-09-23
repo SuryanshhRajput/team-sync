@@ -16,14 +16,17 @@ const DashboardLayout = () => {
 
   return (
     <div className="h-screen grid grid-cols-[1fr_6fr]">
-      <div className="border-r border-gray-500 px-6 py-4">
+      <div className="border-r border-gray-500  py-4">
         <AsideNav />
       </div>
-      <div className="flex flex-col gap-5 px-6 py-4">
-        <div>
+      <div className="flex flex-col gap-5 px-6 py-4 overflow-auto ">
+        <div className="min-w-auto">
           <TopNav />
         </div>
-        <Outlet />
+        <div className="overflow-auto h-full">
+          
+          <Outlet />
+        </div>
       </div>
     </div>
   );

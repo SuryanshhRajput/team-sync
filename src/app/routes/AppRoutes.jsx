@@ -52,11 +52,11 @@ const AppRoutes = () => {
           children: [
             ...commonRoutes,
             {
-              element: <RoleBaseRoute allowedRole={"admin"} />,
+              element: <RoleBaseRoute allowedRoles={["admin"]} />,
               children: adminRoute,
             },
             {
-              element: <RoleBaseRoute allowedRole={"employee"} />,
+              element: <RoleBaseRoute allowedRoles={["employee"]} />,
               children: employeeRoutes,
             },
           ],
