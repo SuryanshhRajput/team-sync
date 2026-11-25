@@ -2,6 +2,8 @@ import { Bell, LightbulbIcon, Menu, Moon, Search } from "lucide-react";
 import React from "react";
 import { toggleTheme } from "../../../../shared/state/themeSlice";
 import { useDispatch, useSelector } from "react-redux";
+import { logoutApi } from "../../../auth/apis/authApi";
+import { removeEmployee } from "../../../auth/state/auth/authSlice";
 
 const TopNav = () => {
   const { mode } = useSelector((store) => store.theme);
@@ -9,6 +11,14 @@ const TopNav = () => {
   let handleThemeChange = () => {
     dispatch(toggleTheme());
   };
+
+  // hanlde logout through authAPI
+
+  let handleLogout = async () => {
+    await logoutApi;
+    dispatch(removeEmployee());
+  };
+
   return (
     <div className="flex justify-between items-center ">
       <div className="gap-4 flex items-center w-[30%] rounded-xl px-3 py-2 bg-(--bg-surface) border border-gray-700">
@@ -20,7 +30,7 @@ const TopNav = () => {
           placeholder="Search WorkSpace"
         />
       </div>{" "}
-      <div className="flex gap-4">
+      <div className="flex gap-4 items-center">
         {mode === "light" ? (
           <Moon onClick={handleThemeChange} size={23} />
         ) : (
@@ -29,6 +39,13 @@ const TopNav = () => {
 
         <Bell size={23} />
         <Menu size={23} />
+        <button
+          onClick={handleLogout}
+          className=" text-(--danger) font-bold border-2 rounded-2xl   px-2 py-2"
+        >
+          {" "}
+          Logout
+        </button>
       </div>
     </div>
   );

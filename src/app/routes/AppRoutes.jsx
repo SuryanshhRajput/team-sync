@@ -20,7 +20,7 @@ const AppRoutes = () => {
     (() => {
       dispatch(currentLoggedEmployee());
     })();
-  }, []);
+  }, [dispatch]);
 
   let router = createBrowserRouter([
     {

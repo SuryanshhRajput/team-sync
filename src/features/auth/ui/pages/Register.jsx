@@ -21,6 +21,10 @@ const RegisterPage = () => {
     handleSubmit,
     registerFormSubmit,
     navigate,
+    getValues,
+    errors,
+    isLoading,
+    registerError,
     showPassword,
     setShowPassword,
     showConfirmPassword,
@@ -180,9 +184,10 @@ const RegisterPage = () => {
                   <UserRound className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-white/25" />
 
                   <input
-                    {...register("name")}
+                    {...register("name", { required: true })}
                     type="text"
                     placeholder="Enter your full name"
+                    required
                     className="w-full h-[56px] rounded-xl border border-white/[0.11] bg-white/[0.035] pl-12 pr-4 text-[15px] text-white placeholder:text-white/20 outline-none transition focus:border-violet-400/60 focus:bg-white/[0.05] focus:ring-4 focus:ring-violet-500/[0.06]"
                   />
                 </div>
@@ -197,12 +202,35 @@ const RegisterPage = () => {
                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-white/25" />
 
                   <input
-                    {...register("email")}
+                    {...register("email", { required: true })}
                     type="email"
                     placeholder="name@company.com"
+                    required
                     className="w-full h-[56px] rounded-xl border border-white/[0.11] bg-white/[0.035] pl-12 pr-4 text-[15px] text-white placeholder:text-white/20 outline-none transition focus:border-violet-400/60 focus:bg-white/[0.05] focus:ring-4 focus:ring-violet-500/[0.06]"
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-[13px] font-medium text-white/65 mb-2.5">
+                  Department
+                </label>
+
+                <select
+                  {...register("department", { required: true })}
+                  required
+                  defaultValue=""
+                  className="w-full h-[56px] rounded-xl border border-white/[0.11] bg-[#17141d] px-4 text-[15px] text-white outline-none transition focus:border-violet-400/60 focus:ring-4 focus:ring-violet-500/[0.06]"
+                >
+                  <option value="" disabled>
+                    Select your department
+                  </option>
+                  {["developer", "design", "common", "hr"].map((department) => (
+                    <option key={department} value={department}>
+                      {department.charAt(0).toUpperCase() + department.slice(1)}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div>
@@ -214,9 +242,13 @@ const RegisterPage = () => {
                   <LockKeyhole className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-white/25" />
 
                   <input
-                    {...register("password")}
+                    {...register("password", {
+                      required: true,
+                      minLength: 8,
+                    })}
                     type={showPassword ? "text" : "password"}
                     placeholder="Create a strong password"
+                    required
                     className="w-full h-[56px] rounded-xl border border-white/[0.11] bg-white/[0.035] pl-12 pr-12 text-[15px] text-white placeholder:text-white/20 outline-none transition focus:border-violet-400/60 focus:bg-white/[0.05] focus:ring-4 focus:ring-violet-500/[0.06]"
                   />
 
@@ -260,8 +292,15 @@ const RegisterPage = () => {
                   <LockKeyhole className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-white/25" />
 
                   <input
+                    {...register("confirmPassword", {
+                      required: true,
+                      validate: (value) =>
+                        value === getValues("password") ||
+                        "Passwords do not match",
+                    })}
                     type={showConfirmPassword ? "text" : "password"}
                     placeholder="Re-enter your password"
+                    required
                     className="w-full h-[56px] rounded-xl border border-white/[0.11] bg-white/[0.035] pl-12 pr-12 text-[15px] text-white placeholder:text-white/20 outline-none transition focus:border-violet-400/60 focus:bg-white/[0.05] focus:ring-4 focus:ring-violet-500/[0.06]"
                   />
 
@@ -277,7 +316,18 @@ const RegisterPage = () => {
                     )}
                   </button>
                 </div>
+                {errors.confirmPassword && (
+                  <p className="mt-2 text-sm text-red-400">
+                    {errors.confirmPassword.message}
+                  </p>
+                )}
               </div>
+
+              {registerError && (
+                <p role="alert" className="text-sm text-red-400">
+                  {registerError}
+                </p>
+              )}
 
               <label className="flex items-start gap-3 cursor-pointer pt-1">
                 <input type="checkbox" className="peer sr-only" />
@@ -307,9 +357,10 @@ const RegisterPage = () => {
 
               <button
                 type="submit"
+                disabled={isLoading}
                 className="group w-full h-[58px] rounded-xl bg-gradient-to-r from-[#7756c7] via-[#8f6be3] to-[#b99df5] text-[#120d1c] font-bold text-[15px] flex items-center justify-center gap-3 hover:brightness-110 active:scale-[0.99] transition shadow-[0_14px_40px_rgba(124,92,246,0.18)]"
               >
-                Create account
+                {isLoading ? "Creating account..." : "Create account"}
                 <ArrowRight className="w-4.5 h-4.5 group-hover:translate-x-1 transition-transform" />
               </button>
             </form>

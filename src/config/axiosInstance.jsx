@@ -8,16 +8,25 @@ export let axiosInstance = axios.create({
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
-    let originalReq = error.config;
-    if (error.response?.status === 401 && !originalReq?._retry) {
+    const originalReq = error.config;
+    const requestUrl = originalReq?.url ?? "";
+    const isAuthEndpoint =
+      requestUrl.includes("/auth/login") ||
+      requestUrl.includes("/auth/get-accessToken");
+
+    if (
+      error.response?.status === 401 &&
+      originalReq &&
+      !originalReq._retry &&
+      !isAuthEndpoint
+    ) {
       originalReq._retry = true;
 
       try {
         await axiosInstance.get("/auth/get-accessToken");
         return axiosInstance(originalReq);
-      } catch (error) {
-        window.location.href = "/";
-        return Promise.reject(error);
+      } catch (refreshError) {
+        return Promise.reject(refreshError);
       }
     }
 
