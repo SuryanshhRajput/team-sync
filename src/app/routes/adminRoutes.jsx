@@ -1,4 +1,5 @@
-import Department from "../../features/admin module/departments/ui/pages/Department";
+import CreateDepartment from "../../features/admin module/departments/ui/pages/CreateDepartment";
+import GetAllDepartments from "../../features/admin module/departments/ui/pages/GetAllDepartments";
 import Document from "../../features/admin module/documents/ui/pages/Document";
 import AddEmployee from "../../features/admin module/employees/ui/pages/AddEmployee";
 import Employee from "../../features/admin module/employees/ui/pages/Employee";
@@ -15,7 +16,11 @@ export let adminRoute = [
   },
   {
     path: "/home/department",
-    element: <Department />,
+    element: <GetAllDepartments />,
+  },
+  {
+    path: "/home/department/create",
+    element: <CreateDepartment />,
   },
   {
     path: "/home/task",
