@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import { loginEmployee, registerEmployee } from "../state/auth/authAction";
+import { toast } from "react-toastify";
 
 export const useAuth = () => {
   const {
@@ -20,8 +21,13 @@ export const useAuth = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [registerError, setRegisterError] = useState("");
 
-  const loginFormSubmit = (data) => {
-    dispatch(loginEmployee(data));
+  const loginFormSubmit = async (data) => {
+    try {
+      await dispatch(loginEmployee(data)).unwrap();
+      toast.success("Logged in successfully.");
+    } catch (error) {
+      toast.error(error?.message ?? "Unable to log in. Please check your details.");
+    }
   };
 
   const registerFormSubmit = async ({ name, email, password, department }) => {
@@ -31,8 +37,10 @@ export const useAuth = () => {
       await dispatch(
         registerEmployee({ name, email, password, department }),
       ).unwrap();
+      toast.success("Account created successfully.");
     } catch (error) {
       setRegisterError(error?.message ?? "Unable to register. Please try again.");
+      toast.error(error?.message ?? "Unable to register. Please try again.");
     }
   };
 

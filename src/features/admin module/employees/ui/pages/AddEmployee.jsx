@@ -2,12 +2,14 @@ import React from "react";
 import AddEmployeeForm from "../components/addEmployees/AddEmployeeForm";
 import { useEmployee } from "../../hooks/useEmployees";
 import { createEmployee } from "../../api/employeeApi";
+import { toast } from "react-toastify";
 
 const AddEmployee = () => {
   const { navigate } = useEmployee();
   const handleSubmit = async (formData) => {
     try {
       let res = await createEmployee(formData);
+      toast.success("Employee created successfully.");
       console.log("employee created in UI", {
         id: res?._id,
         name: res?.name,
@@ -15,6 +17,7 @@ const AddEmployee = () => {
       });
       return res;
     } catch (error) {
+      toast.error(error.response?.data?.message ?? error.message ?? "Failed to create employee.");
       console.log("error in ADD EMPLOYEE FORM CREATE API", error);
       throw error;
     }

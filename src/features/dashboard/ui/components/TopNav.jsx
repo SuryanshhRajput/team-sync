@@ -4,6 +4,7 @@ import { toggleTheme } from "../../../../shared/state/themeSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { logoutApi } from "../../../auth/apis/authApi";
 import { removeEmployee } from "../../../auth/state/auth/authSlice";
+import { toast } from "react-toastify";
 
 const TopNav = () => {
   const { mode } = useSelector((store) => store.theme);
@@ -15,8 +16,13 @@ const TopNav = () => {
   // hanlde logout through authAPI
 
   let handleLogout = async () => {
-    await logoutApi;
-    dispatch(removeEmployee());
+    try {
+      await logoutApi();
+      dispatch(removeEmployee());
+      toast.success("Logged out successfully.");
+    } catch (error) {
+      toast.error(error.response?.data?.message ?? "Unable to log out.");
+    }
   };
 
   return (

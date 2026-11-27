@@ -31,6 +31,11 @@ export let employeeNavigation = [
     icon: CheckCircle,
   },
   {
+    path: "/home/document",
+    title: "Documents",
+    icon: File,
+  },
+  {
     path: "/home/profile",
     title: "Profile",
     icon: PersonStanding,

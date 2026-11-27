@@ -1,0 +1,96 @@
+const {
+  registerService,
+  loginService,
+  accessTokenService,
+  logoutService,
+} = require("../services/auth.service");
+const ApiResponse = require("../utils/ApiResponse");
+const asyncHandler = require("../utils/asyncHandler");
+
+const registerController = asyncHandler(async (req, res) => {
+  const { employee, accessToken, refreshToken } = await registerService(
+    req.body
+  );
+
+  res.cookie("accessToken", accessToken, {
+    httpOnly: true,
+    secure: false,
+    sameSite: "lax",
+  });
+
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: true,
+    secure: false,
+    sameSite: "lax",
+  });
+
+  res
+    .status(201)
+    .json(new ApiResponse(201, "Employee registered successfully", employee));
+});
+
+const loginController = asyncHandler(async (req, res) => {
+  const { email, password } = req.body;
+
+  const { employee, accessToken, refreshToken } = await loginService(
+    email,
+    password
+  );
+
+  res.cookie("accessToken", accessToken, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+    path: "/",
+    maxAge: 15 * 60 * 1000,
+  });
+
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+    path: "/",
+    maxAge: 24 * 60 * 60 * 1000,
+  });
+
+  res.status(200).json(new ApiResponse(200, "Employee loggedIn", employee));
+});
+
+const getAccessTokenController = asyncHandler(async (req, res) => {
+  let refreshToken = req.cookies.refreshToken;
+
+  const { newAccessToken } = await accessTokenService(refreshToken);
+
+  res.cookie("accessToken", newAccessToken, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+    path: "/",
+    maxAge: 15 * 60 * 1000,
+  });
+
+  res.status(200).json(new ApiResponse(200, "accessToken generated"));
+});
+
+const logoutController = asyncHandler(async (req, res) => {
+  await logoutService(req.cookies.refreshToken);
+
+  const cookieOptions = {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+    path: "/",
+  };
+
+  res.clearCookie("accessToken", cookieOptions);
+  res.clearCookie("refreshToken", cookieOptions);
+
+  res.status(200).json(new ApiResponse(200, "Employee loggedOut"));
+});
+
+module.exports = {
+  registerController,
+  loginController,
+  getAccessTokenController,
+  logoutController,
+};
