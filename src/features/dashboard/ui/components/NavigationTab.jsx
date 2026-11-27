@@ -9,7 +9,7 @@ const NavigationTab = ({ path, title, Icon }) => {
       }end
       to={path}
     >
-      <Icon size={18} />
+      {React.createElement(Icon, { size: 18 })}
       {title}
     </NavLink>
   );

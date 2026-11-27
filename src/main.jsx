@@ -5,12 +5,15 @@ import AppRoutes from "./app/routes/AppRoutes.jsx";
 import { store } from "./app/store.jsx";
 import { Provider } from "react-redux";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 let queryClient = new QueryClient();
 createRoot(document.getElementById("root")).render(
   <QueryClientProvider client={queryClient}>
     <Provider store={store}>
       <AppRoutes />
+      <ToastContainer position="top-right" autoClose={4000} theme="colored" />
     </Provider>
   </QueryClientProvider>,
 );
