@@ -1,50 +1,63 @@
 # TeamSync
 
-TeamSync is a role-based team workspace for administrators and employees. The repository contains a React/Vite frontend and an Express/MongoDB API in one Git repository.
+TeamSync is a team workspace with separate administrator and employee experiences. The repository includes a React frontend and an Express API backed by MongoDB.
 
-## Project structure
+## Repository layout
 
 ```text
-.
-├── src/                 # React frontend
-├── backend/             # Express API
+team-sync/
+├── backend/                 # Express API, MongoDB models, and API docs
+│   ├── docs/
 │   ├── src/
-│   ├── docs/            # OpenAPI and HTML API reference
-│   └── server.js
+│   ├── server.js
+│   └── package.json
+├── public/                  # Frontend static files
+├── src/                     # React frontend
+│   ├── app/                  # Routes, layouts, navigation, Redux store
+│   ├── features/             # Auth, dashboard, tasks, employees, etc.
+│   └── shared/               # Shared state and UI
+├── package.json             # Frontend scripts and dependencies
 └── README.md
 ```
 
-The frontend runs on Vite at `http://localhost:5173`. The backend listens on port `4000` by default.
+The frontend and backend have separate `package.json` files and install their dependencies separately.
 
 ## Requirements
 
-- Node.js 20 or newer
-- npm
-- MongoDB connection string
-- ImageKit credentials for profile image uploads
+- Node.js and npm
+- A MongoDB database
+- ImageKit account credentials (needed for profile image uploads)
 
-## Configure the backend
+## Backend configuration
 
-Create `backend/.env` (do not commit this file):
+Create `backend/.env` locally. Do not commit secrets.
 
 ```env
 PORT=4000
 MONGO_URL=mongodb://127.0.0.1:27017/teamsync
-ACCESS_TOKEN_SECRET=replace-with-a-long-random-secret
-REFRESH_TOKEN_SECRET=replace-with-another-long-random-secret
+ACCESS_TOKEN_SECRET=use-a-long-random-secret
+REFRESH_TOKEN_SECRET=use-a-different-long-random-secret
 FRONTEND_URL=http://localhost:5173
-IMAGEKIT_PUBLIC_KEY=your-imagekit-public-key
-IMAGEKIT_PRIVATE_KEY=your-imagekit-private-key
+IMAGEKIT_PUBLIC_KEY=your-public-key
+IMAGEKIT_PRIVATE_KEY=your-private-key
 IMAGEKIT_URL_END=https://ik.imagekit.io/your-imagekit-id
 ```
 
-`FRONTEND_URL` is an allowed CORS origin. The backend also allows the development origins `http://localhost:5173` and `http://localhost:3000`, plus the currently configured production frontend origin.
+`FRONTEND_URL` adds the frontend origin to the backend CORS allowlist. The backend also currently allows `http://localhost:5173`, `http://localhost:3000`, and the configured DigitalOcean frontend origin. For another deployment origin, update the CORS allowlist in `backend/src/app.js` or configure the allowlist through environment variables before deploying.
 
-## Run locally
+## Frontend configuration
 
-Open two terminals from the repository root.
+The frontend defaults to the deployed TeamSync API. To point it at the local backend, create `.env.local` in the repository root:
 
-Terminal 1, start the API:
+```env
+VITE_API_URL=http://localhost:4000
+```
+
+The frontend adds `/api` to this value and sends requests with cookies enabled. Restart Vite after changing environment variables.
+
+## Run the project locally
+
+Install and start the backend in one terminal:
 
 ```bash
 cd backend
@@ -52,58 +65,82 @@ npm install
 npm start
 ```
 
-Terminal 2, start the frontend:
+Create `backend/.env` before starting it. By default, the API listens on port `4000` and connects to the MongoDB URL in `MONGO_URL`.
+
+Install and start the frontend in a second terminal, from the repository root:
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open `http://localhost:5173`. The API health response is at `http://localhost:4000/`; the API reference is at `http://localhost:4000/api-reference`, and Swagger UI is at `http://localhost:4000/api-docs`.
+Open <http://localhost:5173>.
 
-By default the frontend uses the deployed API URL. To use the local backend, create a root `.env.local` file:
+## Useful URLs
 
-```env
-VITE_API_URL=http://localhost:4000
-```
-
-The frontend appends `/api` to this value. Restart the Vite server after changing environment variables.
+| URL | Purpose |
+| --- | --- |
+| `http://localhost:5173` | Frontend development app |
+| `http://localhost:4000/` | Backend health response |
+| `http://localhost:4000/api-reference` | HTML API reference |
+| `http://localhost:4000/api-docs` | Swagger UI |
+| `http://localhost:4000/api-docs/openapi.json` | OpenAPI JSON |
 
 ## Available commands
 
-From the repository root (frontend):
+Run frontend commands from the repository root:
 
 ```bash
-npm run dev       # Start Vite development server
-npm run lint      # Run ESLint on the frontend
-npm run build     # Build the frontend for production
-npm run preview   # Preview the production build
+npm run dev       # Start Vite with hot reload
+npm run lint      # Lint frontend files
+npm run build     # Create the production frontend bundle in dist/
+npm run preview   # Serve the production bundle locally
 ```
 
-From `backend/`:
+Run backend commands from `backend/`:
 
 ```bash
-npm start         # Start the Express API
+npm start         # Start the API server
 ```
 
-The backend package does not currently have an automated test suite.
+The backend currently has no automated test suite; its `test` script is a placeholder.
 
-## Application areas
+## Features
 
-- Authentication: registration, login, session refresh, and logout using HTTP-only cookies
-- Role-based navigation and route protection for admins and employees
-- Employees: directory and employee creation
-- Departments: department creation and listing
-- Tasks: task creation, list filters, pagination, assignment, status changes, deletion, details, kanban view, and analytics
-- Dashboard: workspace summary cards and recent tasks
-- Documents: sample frontend documents with search, category filters, preview, and sample text downloads
-- Chats: frontend navigation and page; the API reference currently does not define messaging endpoints
-- Shared light/dark theme and toast notifications
+- Registration, login, logout, current-user lookup, and access-token refresh
+- Cookie-based authentication and protected routes
+- Role-specific navigation and access for administrators and employees
+- Employee directory and employee creation
+- Department listing and creation
+- Task creation, assignment, filtering, pagination, status changes, deletion, detail view, kanban view, and analytics
+- Dashboard summary cards and recent tasks
+- Shared theme controls and toast notifications
+- Documents interface with sample records, search, category filters, preview, and sample text downloads
+- Chat navigation and interface shell
 
-Document samples are frontend-only placeholders. Chat messaging is not connected to a backend API. The backend currently mounts authentication, employee, task, dashboard, and department routes.
+The Documents page uses frontend sample data; it does not upload or retrieve real files. The API currently has no chat/messaging endpoints, so chat is not a live messaging feature. The backend mounts API route groups for auth, employees, tasks, dashboard, and departments.
 
-## API and authentication notes
+## API route groups
 
-The API base URL is configured in `src/config/axiosInstance.jsx` and can be overridden using `VITE_API_URL`. The frontend sends requests with credentials enabled. Keep the frontend origin in the backend CORS allowlist and configure the same origin in `FRONTEND_URL` for deployments.
+All API routes are under `/api` and require authentication unless their route specifically permits public access. See the API docs for request/response schemas and role permissions.
 
-API documentation files are in `backend/docs/`. Never commit `.env`, access secrets, database credentials, or private ImageKit keys.
+| Prefix | Area |
+| --- | --- |
+| `/api/auth` | Register, login, logout, current user, refresh token |
+| `/api/employee` | Employee listing, details, create, update, delete, profile image upload |
+| `/api/tasks` | Task list/create/details, kanban, analytics, assignment, status, delete |
+| `/api/dashboard` | Dashboard statistics |
+| `/api/departments` | Department listing, creation, management |
+
+## Authentication and deployment notes
+
+- The frontend Axios client uses `withCredentials: true`; backend CORS must allow the exact frontend origin and credentials.
+- Set `VITE_API_URL` to the API origin, without a trailing `/api` (for example `https://api.example.com`). The client appends `/api`.
+- Set `FRONTEND_URL` to the deployed frontend origin and ensure it is present in the backend CORS allowlist.
+- Set secure, unique access and refresh token secrets in each environment.
+- Configure production cookie settings and HTTPS for deployed frontend/backend origins.
+- Never commit `.env` files, database credentials, token secrets, or private ImageKit keys.
+
+## Seed scripts
+
+`backend/insert.js` and `backend/insertTasks.js` are database seed scripts. Inspect their contents and confirm the configured database before running them; they modify database records.
