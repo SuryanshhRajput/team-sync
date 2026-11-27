@@ -6,21 +6,19 @@ TeamSync is a team workspace with separate administrator and employee experience
 
 ```text
 team-sync/
+├── frontend/                # React/Vite application
+│   ├── public/
+│   ├── src/
+│   └── package.json
 ├── backend/                 # Express API, MongoDB models, and API docs
 │   ├── docs/
 │   ├── src/
 │   ├── server.js
 │   └── package.json
-├── public/                  # Frontend static files
-├── src/                     # React frontend
-│   ├── app/                  # Routes, layouts, navigation, Redux store
-│   ├── features/             # Auth, dashboard, tasks, employees, etc.
-│   └── shared/               # Shared state and UI
-├── package.json             # Frontend scripts and dependencies
 └── README.md
 ```
 
-The frontend and backend have separate `package.json` files and install their dependencies separately.
+The frontend and backend are sibling folders. Each has its own `package.json` and installs dependencies separately.
 
 ## Requirements
 
@@ -67,9 +65,10 @@ npm start
 
 Create `backend/.env` before starting it. By default, the API listens on port `4000` and connects to the MongoDB URL in `MONGO_URL`.
 
-Install and start the frontend in a second terminal, from the repository root:
+Install and start the frontend in a second terminal:
 
 ```bash
+cd frontend
 npm install
 npm run dev
 ```
@@ -88,7 +87,7 @@ Open <http://localhost:5173>.
 
 ## Available commands
 
-Run frontend commands from the repository root:
+Run frontend commands from `frontend/`:
 
 ```bash
 npm run dev       # Start Vite with hot reload
@@ -135,7 +134,7 @@ All API routes are under `/api` and require authentication unless their route sp
 ## Authentication and deployment notes
 
 - The frontend Axios client uses `withCredentials: true`; backend CORS must allow the exact frontend origin and credentials.
-- Set `VITE_API_URL` to the API origin, without a trailing `/api` (for example `https://api.example.com`). The client appends `/api`.
+- Set `VITE_API_URL` in `frontend/.env.local` to the API origin, without a trailing `/api` (for example `https://api.example.com`). The client appends `/api`.
 - Set `FRONTEND_URL` to the deployed frontend origin and ensure it is present in the backend CORS allowlist.
 - Set secure, unique access and refresh token secrets in each environment.
 - Configure production cookie settings and HTTPS for deployed frontend/backend origins.
